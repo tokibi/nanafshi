@@ -1,8 +1,17 @@
 # nanafshi
 
+[![][MIT]][MIT-Link]
+
 ## Description
 
 WIP
+
+## Build
+
+```console
+$ cd cmd/nanafshi
+$ go build
+```
 
 ## Usage
 

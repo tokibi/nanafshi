@@ -63,8 +63,8 @@ The following environment variables can be used in the command.
 
 ## TODO
 
-- [] Configure authority (mode, owner)
-- [] Logger
-- [] Read cache
-- [] Support interactive command
-- [] Injection measures
+- [ ] Configure authority (mode, owner)
+- [ ] Logger
+- [ ] Read cache
+- [ ] Support interactive command
+- [ ] Injection measures

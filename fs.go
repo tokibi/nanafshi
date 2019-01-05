@@ -131,7 +131,7 @@ func (f CommandFile) WriteFile(data []byte, ctx *fuse.Context) error {
 	if f.WriteCommand.Async {
 		err = cmd.Start()
 	} else {
-		err = cmd.Wait()
+		err = cmd.Run()
 	}
 
 	if err != nil {

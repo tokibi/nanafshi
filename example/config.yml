@@ -1,0 +1,21 @@
+shell: /bin/bash
+services:
+  - name: dir
+    files:
+      - name: example
+        read:
+          cache: 60 # wip
+          command: curl http://www.example.com/
+
+      - name: writable
+        read:
+          command: |
+            touch /tmp/file
+            cat /tmp/file
+        write:
+          async: true
+          command: echo $FUSE_STDIN >> /tmp/file
+
+      - name: now
+        read:
+          command: date

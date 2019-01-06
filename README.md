@@ -9,6 +9,7 @@ WIP
 ## Build
 
 ```console
+$ dep ensure
 $ cd cmd/nanafshi
 $ go build
 ```

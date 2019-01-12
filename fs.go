@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/tokibi/nanafshi/config"
+
 	"github.com/hanwen/go-fuse/fuse"
 	"github.com/hanwen/go-fuse/fuse/nodefs"
 )
@@ -37,7 +39,7 @@ var errProtocol = errors.New("not implemented")
 type Root struct {
 	nodefs.Node
 	NodeInfo
-	Services []Service
+	Services []config.Service
 }
 
 func (r Root) Stat() *NodeInfo {
@@ -67,7 +69,7 @@ func (r Root) ListNodes() ([]Node, error) {
 type ServiceDir struct {
 	nodefs.Node
 	NodeInfo
-	Service
+	Service config.Service
 }
 
 func (d ServiceDir) Stat() *NodeInfo {
@@ -97,7 +99,7 @@ func (d ServiceDir) ListNodes() ([]Node, error) {
 type CommandFile struct {
 	nodefs.Node
 	NodeInfo
-	File
+	config.File
 }
 
 func (f CommandFile) Stat() *NodeInfo {
@@ -109,7 +111,7 @@ func (f CommandFile) ListNodes() ([]Node, error) {
 }
 
 func (f CommandFile) ReadFile(ctx *fuse.Context) ([]byte, error) {
-	cmd, err := f.ReadCommand.Command.Build(config.Shell, f.makeEnv(ctx))
+	cmd, err := f.ReadCommand.Command.Build(conf.Shell, f.makeEnv(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +125,7 @@ func (f CommandFile) ReadFile(ctx *fuse.Context) ([]byte, error) {
 func (f CommandFile) WriteFile(data []byte, ctx *fuse.Context) error {
 	env := f.makeEnv(ctx)
 	env = append(env, "FUSE_STDIN="+string(data))
-	cmd, err := f.WriteCommand.Command.Build(config.Shell, env)
+	cmd, err := f.WriteCommand.Command.Build(conf.Shell, env)
 	if err != nil {
 		return err
 	}

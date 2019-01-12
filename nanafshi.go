@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
+
+	"github.com/tokibi/nanafshi/config"
 )
 
 const version = "0.1"
 
 var (
-	opts   Option
-	config Config
+	opts Option
+	conf *config.Config
 )
 
 type Nanafshi struct {
@@ -21,6 +24,19 @@ const (
 	ExitCodeOK = iota
 	ExitCodeError
 )
+
+func newRoot(conf *config.Config) *Root {
+	now := time.Now()
+	return &Root{
+		Node: NewNode(),
+		NodeInfo: NodeInfo{
+			Mode:     os.ModeDir | 0777,
+			Creation: now,
+			LastMod:  now,
+		},
+		Services: conf.Services,
+	}
+}
 
 func (n Nanafshi) Run(args []string) int {
 	parser := newOptionParser(&opts)
@@ -38,12 +54,13 @@ func (n Nanafshi) Run(args []string) int {
 		return ExitCodeError
 	}
 
-	config = Config{}
-	if err := LoadConfig(opts.ConfPath, &config); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	conf, err = config.LoadFile(opts.ConfPath)
+	if err != nil {
+		fmt.Fprintln(n.Out, err)
 		return ExitCodeError
 	}
-	root := config.NewRoot()
+
+	root := newRoot(conf)
 	if err = root.MountAndServe(args[0], opts.Verbose); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return ExitCodeError

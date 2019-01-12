@@ -10,37 +10,14 @@ import (
 	"io/ioutil"
 	"os/exec"
 
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/go-playground/validator.v9"
+	"gopkg.in/yaml.v2"
 )
 
 // Config is the top-level configuration for nanafshi.
 type Config struct {
 	Shell    string    `yaml:"shell" validate:"required"`
-	Services []Service `yaml:"services"`
-}
-
-// Load parses given YAML input.
-func Load(b []byte) (*Config, error) {
-	cfg := &Config{}
-
-	err := yaml.UnmarshalStrict(b, cfg)
-	if err != nil {
-		return nil, err
-	}
-	return cfg, nil
-}
-
-// LoadFile parses given YAML file.
-func LoadFile(filename string) (*Config, error) {
-	b, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	cfg, err := Load(b)
-	if err != nil {
-		return nil, err
-	}
-	return cfg, nil
+	Services []Service `yaml:"services" validate:"required"`
 }
 
 // Service represents setting of file division unit directly under the nanafshi directory.
@@ -80,4 +57,32 @@ func (c Command) Build(shell string, env []string) (*exec.Cmd, error) {
 	io.WriteString(stdin, string(c))
 	stdin.Close()
 	return cmd, nil
+}
+
+// Load parses given YAML input.
+func Load(b []byte) (*Config, error) {
+	cfg := &Config{}
+
+	err := yaml.UnmarshalStrict(b, cfg)
+	if err != nil {
+		return nil, err
+	}
+	return cfg, nil
+}
+
+// LoadFile parses given YAML file.
+func LoadFile(filename string) (*Config, error) {
+	b, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	cfg, err := Load(b)
+	if err != nil {
+		return nil, err
+	}
+	v := validator.New()
+	if err := v.Struct(cfg); err != nil {
+		return nil, err
+	}
+	return cfg, nil
 }

@@ -42,15 +42,15 @@ type Root struct {
 	Services []config.Service
 }
 
-func (r Root) Stat() *NodeInfo {
-	return &r.NodeInfo
+func (n Root) Stat() *NodeInfo {
+	return &n.NodeInfo
 }
 
-func (r Root) ListNodes() ([]Node, error) {
+func (n Root) ListNodes() ([]Node, error) {
 	now := time.Now()
-	nodes := make([]Node, 0, len(r.Services))
+	nodes := make([]Node, 0, len(n.Services))
 
-	for _, s := range r.Services {
+	for _, s := range n.Services {
 		node := &ServiceDir{
 			Node: NewNode(),
 			NodeInfo: NodeInfo{
@@ -72,15 +72,15 @@ type ServiceDir struct {
 	Service config.Service
 }
 
-func (d ServiceDir) Stat() *NodeInfo {
-	return &d.NodeInfo
+func (n ServiceDir) Stat() *NodeInfo {
+	return &n.NodeInfo
 }
 
-func (d ServiceDir) ListNodes() ([]Node, error) {
+func (n ServiceDir) ListNodes() ([]Node, error) {
 	now := time.Now()
-	nodes := make([]Node, 0, len(d.Service.Files))
+	nodes := make([]Node, 0, len(n.Service.Files))
 
-	for _, f := range d.Service.Files {
+	for _, f := range n.Service.Files {
 		node := &CommandFile{
 			Node: NewNode(),
 			NodeInfo: NodeInfo{
@@ -102,16 +102,16 @@ type CommandFile struct {
 	config.File
 }
 
-func (f CommandFile) Stat() *NodeInfo {
-	return &f.NodeInfo
+func (n CommandFile) Stat() *NodeInfo {
+	return &n.NodeInfo
 }
 
-func (f CommandFile) ListNodes() ([]Node, error) {
+func (n CommandFile) ListNodes() ([]Node, error) {
 	return nil, errProtocol
 }
 
-func (f CommandFile) ReadFile(ctx *fuse.Context) ([]byte, error) {
-	cmd, err := f.ReadCommand.Command.Build(conf.Shell, f.makeEnv(ctx))
+func (n CommandFile) ReadFile(ctx *fuse.Context) ([]byte, error) {
+	cmd, err := n.ReadCommand.Command.Build(conf.Shell, n.makeEnv(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -122,15 +122,15 @@ func (f CommandFile) ReadFile(ctx *fuse.Context) ([]byte, error) {
 	return out, nil
 }
 
-func (f CommandFile) WriteFile(data []byte, ctx *fuse.Context) error {
-	env := f.makeEnv(ctx)
+func (n CommandFile) WriteFile(data []byte, ctx *fuse.Context) error {
+	env := n.makeEnv(ctx)
 	env = append(env, "FUSE_STDIN="+string(data))
-	cmd, err := f.WriteCommand.Command.Build(conf.Shell, env)
+	cmd, err := n.WriteCommand.Command.Build(conf.Shell, env)
 	if err != nil {
 		return err
 	}
 
-	if f.WriteCommand.Async {
+	if n.WriteCommand.Async {
 		err = cmd.Start()
 	} else {
 		err = cmd.Run()
@@ -142,9 +142,9 @@ func (f CommandFile) WriteFile(data []byte, ctx *fuse.Context) error {
 	return nil
 }
 
-func (f CommandFile) makeEnv(ctx *fuse.Context) []string {
+func (n CommandFile) makeEnv(ctx *fuse.Context) []string {
 	return []string{
-		"FUSE_FILENAME=" + f.File.Name,
+		"FUSE_FILENAME=" + n.Stat().Name,
 		"FUSE_OPENPID=" + fmt.Sprint(ctx.Pid),
 		"FUSE_OPENUID=" + fmt.Sprint(ctx.Uid),
 		"FUSE_OPENGID=" + fmt.Sprint(ctx.Gid),

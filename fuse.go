@@ -42,47 +42,47 @@ func (r *Root) MountAndServe(path string, debug bool) error {
 	return nil
 }
 
-func (r *Root) Lookup(out *fuse.Attr, name string, ctx *fuse.Context) (*nodefs.Inode, fuse.Status) {
-	return lookupName(r, name, out, ctx)
+func (n *Root) Lookup(out *fuse.Attr, name string, ctx *fuse.Context) (*nodefs.Inode, fuse.Status) {
+	return lookupName(n, name, out, ctx)
 }
 
-func (r Root) GetAttr(out *fuse.Attr, file nodefs.File, ctx *fuse.Context) fuse.Status {
-	r.NodeInfo.FillAttr(out)
+func (n Root) GetAttr(out *fuse.Attr, file nodefs.File, ctx *fuse.Context) fuse.Status {
+	n.Stat().FillAttr(out)
 	return fuse.OK
 }
 
-func (r *Root) OpenDir(ctx *fuse.Context) ([]fuse.DirEntry, fuse.Status) {
-	return listNodes(r)
+func (n *Root) OpenDir(ctx *fuse.Context) ([]fuse.DirEntry, fuse.Status) {
+	return listNodes(n)
 }
 
-func (d *ServiceDir) Lookup(out *fuse.Attr, name string, ctx *fuse.Context) (*nodefs.Inode, fuse.Status) {
-	return lookupName(d, name, out, ctx)
+func (n *ServiceDir) Lookup(out *fuse.Attr, name string, ctx *fuse.Context) (*nodefs.Inode, fuse.Status) {
+	return lookupName(n, name, out, ctx)
 }
 
-func (d ServiceDir) GetAttr(out *fuse.Attr, file nodefs.File, ctx *fuse.Context) fuse.Status {
-	d.NodeInfo.FillAttr(out)
+func (n ServiceDir) GetAttr(out *fuse.Attr, file nodefs.File, ctx *fuse.Context) fuse.Status {
+	n.Stat().FillAttr(out)
 	return fuse.OK
 }
 
-func (d *ServiceDir) OpenDir(ctx *fuse.Context) ([]fuse.DirEntry, fuse.Status) {
-	return listNodes(d)
+func (n *ServiceDir) OpenDir(ctx *fuse.Context) ([]fuse.DirEntry, fuse.Status) {
+	return listNodes(n)
 }
 
-func (f CommandFile) GetAttr(out *fuse.Attr, file nodefs.File, ctx *fuse.Context) fuse.Status {
-	f.NodeInfo.FillAttr(out)
+func (n CommandFile) GetAttr(out *fuse.Attr, file nodefs.File, ctx *fuse.Context) fuse.Status {
+	n.Stat().FillAttr(out)
 	return fuse.OK
 }
 
-func (f CommandFile) OpenDir(ctx *fuse.Context) ([]fuse.DirEntry, fuse.Status) {
+func (n CommandFile) OpenDir(ctx *fuse.Context) ([]fuse.DirEntry, fuse.Status) {
 	return nil, fuse.EINVAL
 }
 
-func (f CommandFile) Open(flags uint32, ctx *fuse.Context) (nodefs.File, fuse.Status) {
+func (n CommandFile) Open(flags uint32, ctx *fuse.Context) (nodefs.File, fuse.Status) {
 	if flags&fuse.O_ANYWRITE != 0 {
 		return nodefs.NewDevNullFile(), fuse.OK
 	}
 
-	p, err := f.ReadFile(ctx)
+	p, err := n.ReadFile(ctx)
 	if err != nil {
 		return nil, fuse.EIO
 	}
@@ -92,12 +92,12 @@ func (f CommandFile) Open(flags uint32, ctx *fuse.Context) (nodefs.File, fuse.St
 	}, fuse.OK
 }
 
-func (f CommandFile) Truncate(file nodefs.File, size uint64, ctx *fuse.Context) fuse.Status {
+func (n CommandFile) Truncate(file nodefs.File, size uint64, ctx *fuse.Context) fuse.Status {
 	return fuse.OK
 }
 
-func (f CommandFile) Write(file nodefs.File, data []byte, off int64, ctx *fuse.Context) (uint32, fuse.Status) {
-	err := f.WriteFile(data, ctx)
+func (n CommandFile) Write(file nodefs.File, data []byte, off int64, ctx *fuse.Context) (uint32, fuse.Status) {
+	err := n.WriteFile(data, ctx)
 	if err != nil {
 		return 0, fuse.EINVAL
 	}

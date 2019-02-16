@@ -1,0 +1,7 @@
+shell: /bin/bash
+services:
+  - name: dir
+    files:
+      - name: example
+        read:
+          command: curl http://www.example.com/

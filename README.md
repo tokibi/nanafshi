@@ -9,7 +9,8 @@ WIP
 ## Build
 
 ```console
-$ dep ensure
+$ export GO111MODULE=on
+$ go mod vendor
 $ cd cmd/nanafshi
 $ go build
 ```

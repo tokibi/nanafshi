@@ -9,7 +9,7 @@ import (
 	"github.com/tokibi/nanafshi/config"
 )
 
-const version = "0.1"
+const version = "0.1.1"
 
 var (
 	opts Option

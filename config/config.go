@@ -39,7 +39,7 @@ type ReadCommand struct {
 	CacheTime int     `yaml:"cache"` // TODO: WIP
 }
 
-// ReadCommand represents the command to be executed on write and its options.
+// WriteCommand represents the command to be executed on write and its options.
 type WriteCommand struct {
 	Command Command `yaml:"command"`
 	Async   bool    `yaml:"async"`
